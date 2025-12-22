@@ -1,0 +1,30 @@
+{
+  "name": "chat_mate_backend",
+  "version": "1.0.0",
+  "description": "This is the chat app where friends can chat with each other",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "build": "PORT=3001 node index.js"
+  },
+  "author": "Kaif & Sahariyar",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.22.1",
+    "express-fileupload": "^1.5.2",
+    "jsonwebtoken": "^9.0.3",
+    "moment": "^2.30.1",
+    "mongoose": "^9.0.1",
+    "nodemailer": "^7.0.11",
+    "socket.io": "^4.8.1"
+  }
+}
