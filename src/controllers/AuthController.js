@@ -1,21 +1,69 @@
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { User, Otp } = require("../models");
+const sendOtpEmail = require("../utils/sendEmail");
+const { jwtSecret } = require("../config/vars");
 
-export const login = (req, res) => {
+
+//LOGIN 
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // validation
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Email and password are required.",
+      });
+    }
+
+    // check user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        error: "Invalid email or password.",
+      });
+    }
+
+    // compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        error: "Invalid email or password.",
+      });
+    }
+
+    // generate JWT
+    const token = jwt.sign(
+    { id: user._id, email: user.email },
+      jwtSecret,
+    { expiresIn: "7d" }
+     );
+
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone_number: user.phone_number,
+      },
+    });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({
       error: "Something went wrong. Please contact support team.",
     });
   }
 };
 
-export const signup = async (req, res) => {
+
+//SIGNUP 
+const signup = async (req, res) => {
   try {
     const {
-      first_name,
-      last_name,
+      name,
       email,
       phone_number,
       password,
@@ -24,12 +72,12 @@ export const signup = async (req, res) => {
     } = req.body;
 
     if (
-      !first_name ||
-      !last_name ||
+      !name ||
       !email ||
       !phone_number ||
       !password ||
-      !confirm_password
+      !confirm_password ||
+      !otp
     ) {
       return res.status(400).json({ error: "All fields are required." });
     }
@@ -38,43 +86,71 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: "Passwords do not match." });
     }
 
-    const hasedPassword = await bcrypt.hash(password, 10);
+    // check OTP
+    const validOtp = await Otp.findOne({ email, otp });
+    if (!validOtp) {
+      return res.status(400).json({ error: "Invalid or expired OTP." });
+    }
 
-    const inserted = await User.create({
-      first_name,
-      last_name,
+    // check existing user
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({ error: "User already exists." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
       email,
       phone_number,
-      password: hasedPassword,
+      password: hashedPassword,
     });
 
-    if (!inserted)
-      return res.status(400).json({ error: "Failed to create user." });
+    // delete OTP
+    await Otp.deleteMany({ email });
 
-    return res.status(200).json({ message: "User created successfully." });
+    return res.status(201).json({
+      message: "User created successfully.",
+      userId: user.id,
+    });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({
       error: "Something went wrong. Please contact support team.",
     });
   }
 };
 
-export const sendotp = async (req, res) => {
+
+// ================= SEND OTP =================
+
+const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Generate and send OTP logic here
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("SEND OTP API HIT");
+    console.log("EMAIL RECEIVED:", email);
 
-    const insert = await Otp.create({ email, otp: generatedOtp });
-    if (!insert)
-      return res.status(400).json({ error: "Failed to generate OTP." });
-    return res.status(200).json({ message: "OTP sent successfully." });
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("GENERATED OTP:", generatedOtp);
+
+    await Otp.deleteMany({ email });
+    await Otp.create({ email, otp: generatedOtp });
+
+    console.log("SENDING EMAIL...");
+    await sendOtpEmail(email, generatedOtp);
+    console.log("EMAIL SENT SUCCESSFULLY");
+
+    return res.status(200).json({ message: "OTP sent to email" });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      error: "Something went wrong. Please contact support team.",
-    });
+    console.error("OTP ERROR:", err);
+    return res.status(500).json({ error: err.message });
   }
+};
+
+module.exports = {
+  login,
+  signup,
+  sendOtp,
 };

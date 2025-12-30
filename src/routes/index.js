@@ -38,14 +38,16 @@ if (env !== "PROD") {
 
 //Import APIs
 
-// // Protect all routes after this middleware
-router.use("/v1/auth", require("./auth"));
-// router.use(VerifyToken);
+// Protect all routes after this middleware
+router.use("/api/auth", require("./auth"));
+router.use("/api/users", require("./user"));
+router.use("/api/friends", require("./friends"));
+
 
 // No router found
 router.use((req, res) => {
-  res.status(404);
   res.json({ status: "failed", error: "Router not found." });
 });
+
 
 module.exports = router;

@@ -1,17 +1,79 @@
-const app = require("./express");
 const http = require("http");
-const socket = require("socket.io");
-
-/*
- * Creating socket routes
- * Sockets are divided into namespace, used as router
- * The namespace / socket router are imported from router/socket.js
- * The middleware to verify token for all socket connection exists at middleware/index.js and imported to router/socket.js
- * All socket controllers exists in controller/SocketController.js
- */
+const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
+const app = require("./express");
+const { Message } = require("../models");
+const { jwtSecret } = require("./vars");
 
 const server = http.createServer(app);
-const io = socket(server);
-require("../routes/socket")(io);
+
+// Track online users (userId -> socket count)
+const onlineUsers = new Map();
+
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3000", "http://192.168.31.15:3000"],
+    credentials: true,
+  },
+});
+
+// SOCKET AUTH
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) return next(new Error("No token"));
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    socket.user = decoded;
+    next();
+  } catch (err) {
+    next(new Error("Invalid token"));
+  }
+});
+
+io.on("connection", (socket) => {
+  const userId = socket.user.id;
+  console.log("🟢 User connected:", userId);
+
+  // ONLINE USERS (handle multi-tabs)
+  onlineUsers.set(userId, (onlineUsers.get(userId) || 0) + 1);
+  io.emit("online_users", Array.from(onlineUsers.keys()));
+
+  socket.join(userId);
+
+  // SEND MESSAGE
+  socket.on("send_message", async ({ receiverId, text }) => {
+    const message = await Message.create({
+      senderId: userId,
+      receiverId,
+      text,
+      createdAt: new Date(),
+    });
+
+    io.to(receiverId).emit("receive_message", message);
+    io.to(userId).emit("receive_message", message);
+  });
+
+  // TYPING INDICATOR
+  socket.on("typing", ({ receiverId }) => {
+    socket.to(receiverId).emit("typing", {
+      senderId: userId,
+    });
+  });
+
+  // DISCONNECT
+  socket.on("disconnect", () => {
+    console.log("🔴 User disconnected:", userId);
+
+    const count = onlineUsers.get(userId) - 1;
+    if (count <= 0) {
+      onlineUsers.delete(userId);
+    } else {
+      onlineUsers.set(userId, count);
+    }
+
+    io.emit("online_users", Array.from(onlineUsers.keys()));
+  });
+});
 
 module.exports = server;
