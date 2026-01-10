@@ -5,12 +5,11 @@ const dotenvExample = require("dotenv").config({
   path: path.resolve(process.cwd(), ".env.example"),
 });
 
+
 if (process.env.NODE_ENV !== "DEV") {
   if (
-    !dotenv.parsed ||
-    !dotenvExample.parsed ||
     JSON.stringify(Object.keys(dotenv.parsed).sort()) !==
-      JSON.stringify(Object.keys(dotenvExample.parsed).sort())
+    JSON.stringify(Object.keys(dotenvExample.parsed).sort())
   ) {
     throw Error("Missing values in .env Please refer to .env.example");
   }
