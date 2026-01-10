@@ -28,8 +28,7 @@ module.exports = {
   otpExpiryLimit: 1,
   isAppSocketIOEnable: process.env.APP_SOCKET_IO_ENABLE === "true",
   mail: {
-    host: "smtp.hostinger.com",
-    port: 465,
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
       password: process.env.EMAIL_PASS,
