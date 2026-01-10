@@ -12,7 +12,7 @@ const onlineUsers = new Map();
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://192.168.31.15:3000"],
+    origin: ["https://chat-mate-backend-gv2e.onrender.com/"],
     credentials: true,
   },
 });
