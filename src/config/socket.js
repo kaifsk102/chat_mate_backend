@@ -12,13 +12,11 @@ const onlineUsers = new Map();
 
 const io = new Server(server, {
   cors: {
-    origin: 
-    ["http://localhost:3000",
-    "http://192.168.31.15:3000",
-    "https://chat-mate-backend-gv2e.onrender.com/"],
+    origin: ["http://localhost:3000", "https://chat-mate-frontend-xxxx.vercel.app"],
     credentials: true,
   },
 });
+
 
 // SOCKET AUTH
 io.use((socket, next) => {

@@ -7,8 +7,8 @@ const {
   getRequests,
 } = require("../controllers/FriendController");
 
-router.post("/send", verifyToken, sendRequest);
-router.post("/accept", verifyToken, acceptRequest);
-router.get("/requests", verifyToken, getRequests);
+router.post("/api/send", verifyToken, sendRequest);
+router.post("/api/accept", verifyToken, acceptRequest);
+router.get("/api/requests", verifyToken, getRequests);
 
 module.exports = router;

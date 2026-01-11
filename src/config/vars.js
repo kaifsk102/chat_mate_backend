@@ -1,19 +1,24 @@
 const path = require("path");
 const dotenv = require("dotenv").config();
-const dotenvExample = require("dotenv").config({
- 
-  path: path.resolve(process.cwd(), ".env.example"),
-});
+const dotenvExample = require("dotenv").config({path: path.resolve(process.cwd(), ".env.example"),});
 
 
 if (process.env.NODE_ENV !== "DEV") {
-  if (
-    JSON.stringify(Object.keys(dotenv.parsed).sort()) !==
-    JSON.stringify(Object.keys(dotenvExample.parsed).sort())
-  ) {
-    throw Error("Missing values in .env Please refer to .env.example");
+  const requiredVars = [
+    "PORT",
+    "MONGO_CONNECTION_STRING",
+    "JWT_SECRET",
+    "EMAIL_USER",
+    "EMAIL_PASS"
+  ];
+
+  const missing = requiredVars.filter(v => !process.env[v]);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing env vars: ${missing.join(", ")}`);
   }
 }
+
 
 
 module.exports = {
@@ -21,7 +26,7 @@ module.exports = {
   mongodb: process.env.MONGO_CONNECTION_STRING,
   jwtSecret: process.env.JWT_SECRET,
   env: process.env.NODE_ENV,
-  public_image_url: process.env.PUBLIC_URL + "/images/",
+  public_image_url: (process.env.PUBLIC_URL || "") + "/images/",
   host_url: process.env.HOST_URL,
   tokenExpiryLimit: 86400, //3600
   otpExpiryLimit: 1,
@@ -30,7 +35,7 @@ module.exports = {
     service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
-      password: process.env.EMAIL_PASS,
+      pass: process.env.EMAIL_PASS,
     },
   },
 };

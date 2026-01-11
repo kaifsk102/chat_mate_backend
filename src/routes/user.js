@@ -4,6 +4,6 @@ const verifyToken = require("../middlewares/auth");
 const { getFriends } = require("../controllers/UserController");
 
 router.get("/", verifyToken, getFriends);
-router.get("/friends", verifyToken, getFriends);
+router.get("/api/friends", verifyToken, getFriends);
 
 module.exports = router;

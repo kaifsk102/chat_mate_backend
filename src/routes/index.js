@@ -46,7 +46,7 @@ router.use("/api/friends", require("./friends"));
 
 // No router found
 router.use((req, res) => {
-  res.json({ status: "failed", error: "Router not found." });
+  res.status(404).json({ status: "failed", error: "Router not found." });
 });
 
 
