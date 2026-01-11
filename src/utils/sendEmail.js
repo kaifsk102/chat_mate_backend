@@ -1,19 +1,11 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOtpEmail = async (to, otp) => {
   try {
-    await transporter.sendMail({
-      from: `"Chat Mate" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "Chat Mate <onboarding@resend.dev>",
       to,
       subject: "Your OTP Code",
       html: `
@@ -23,6 +15,7 @@ const sendOtpEmail = async (to, otp) => {
         <p>This OTP is valid for 5 minutes.</p>
       `,
     });
+
     console.log("Email Sent to", to);
   } catch (err) {
     console.error("Email Send Error:", err);
