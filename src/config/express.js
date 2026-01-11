@@ -15,6 +15,6 @@ app.use(express.static("public"));
 app.use(cors());
 
 // Mount API routes
-app.use("/api", routes);
+app.use("/", routes);
 
 module.exports = app;
