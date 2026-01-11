@@ -12,7 +12,7 @@ const onlineUsers = new Map();
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://chat-mate-frontend-xxxx.vercel.app"],
+    origin: ["http://localhost:3000", "https://chat-mate-frontend-omega.vercel.app"],
     credentials: true,
   },
 });

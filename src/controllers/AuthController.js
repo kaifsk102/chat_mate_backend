@@ -107,25 +107,26 @@ const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    // delete OTP
-    await Otp.deleteMany({ email });
+// delete OTP
+  await Otp.deleteMany({ email });
 
-    const token = jwt.sign(
+  const token = jwt.sign(
   { id: user._id, email: user.email },
   jwtSecret,
   { expiresIn: "7d" }
 );
 
 return res.status(201).json({
-  message: "User created successfully",
+  message: "User created successfully.",
   token,
   user: {
-    id: user._id,
+    id: user.id,
     name: user.name,
     email: user.email,
     phone_number: user.phone_number,
   },
 });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({
