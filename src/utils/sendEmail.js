@@ -1,17 +1,32 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.BREVO_USER,     // SMTP Login
+    pass: process.env.BREVO_SMTP_KEY, // SMTP Password
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+
+
+transporter.verify((err, success) => {
+  if (err) {
+    console.log("SMTP Connection Error:", err);
+  } else {
+    console.log("SMTP Connected Successfully!");
+  }
 });
 
 const sendOtpEmail = async (to, otp) => {
   try {
     await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+      from: `"Chat Mate" <${process.env.BREVO_USER}>`,
       to,
       subject: "Your OTP Code",
       html: `
