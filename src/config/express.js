@@ -8,11 +8,11 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Static public folder
-app.use(express.static("public"));
-
 // CORS
 app.use(cors());
+
+// Static public folder
+app.use(express.static("public"));
 
 // All main API routes
 app.use("/", routes);
@@ -22,5 +22,10 @@ app.use("/messages", require("../routes/messages"));
 
 // Serve uploaded files
 app.use("/uploads", express.static("uploads"));
+
+// Health check endpoint for Render
+app.get("/", (req, res) => {
+  res.status(200).send("Chat Mate Backend is running!");
+});
 
 module.exports = app;
