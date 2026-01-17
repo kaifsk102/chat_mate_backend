@@ -42,18 +42,31 @@ io.on("connection", (socket) => {
 
   socket.join(userId);
 
-  // SEND MESSAGE
-  socket.on("send_message", async ({ receiverId, text }) => {
-    const message = await Message.create({
-      senderId: userId,
-      receiverId,
-      text,
-      createdAt: new Date(),
-    });
-
-    io.to(receiverId).emit("receive_message", message);
-    io.to(userId).emit("receive_message", message);
+  // SEND TEXT OR REPLY
+socket.on("send_message", async ({ receiverId, text, replyTo }) => {
+  const message = await Message.create({
+    senderId: userId,
+    receiverId,
+    text,
+    replyTo: replyTo || null,
+    status: "sent",
+    createdAt: new Date(),
   });
+
+  io.to(receiverId).emit("receive_message", message);
+  io.to(userId).emit("receive_message", message);
+});
+
+// DELIVERED
+socket.on("message_delivered", async ({ messageId }) => {
+  await Message.findByIdAndUpdate(messageId, { status: "delivered" });
+});
+
+// SEEN
+socket.on("message_seen", async ({ messageId }) => {
+  await Message.findByIdAndUpdate(messageId, { status: "seen" });
+});
+
 
   // TYPING INDICATOR
   socket.on("typing", ({ receiverId }) => {

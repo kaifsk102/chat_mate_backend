@@ -4,17 +4,23 @@ const routes = require("../routes");
 
 const app = express();
 
-// Body parsing (50mb if you need file uploads)
+// Body parsing (file uploads safe)
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Static files
+// Static public folder
 app.use(express.static("public"));
 
-// Enable CORS
+// CORS
 app.use(cors());
 
-// Mount API routes
+// All main API routes
 app.use("/", routes);
+
+// Upload routes for file/audio
+app.use("/messages", require("../routes/messages"));
+
+// Serve uploaded files
+app.use("/uploads", express.static("uploads"));
 
 module.exports = app;

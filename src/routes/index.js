@@ -31,6 +31,7 @@ if (env !== "PROD") {
 router.use("/auth", require("./auth"));
 router.use("/users", require("./user"));
 router.use("/friends", require("./friends"));
+router.use("/messages", require("./messages"));
 
 // ------------------ 404 HANDLER ------------------
 router.use((req, res) => {
