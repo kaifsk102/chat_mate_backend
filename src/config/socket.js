@@ -5,6 +5,7 @@ const app = require("./express");
 const { Message } = require("../models");
 const { jwtSecret } = require("./vars");
 
+const onlineUsers = new Map();
 
 const server = http.createServer(app);
 const io = new Server(server, {
