@@ -3,7 +3,7 @@ const dotenv = require("dotenv").config();
 const dotenvExample = require("dotenv").config({path: path.resolve(process.cwd(), ".env.example"),});
 
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "DEV") {
   const requiredVars = [
     "PORT",
     "MONGO_CONNECTION_STRING",
@@ -22,7 +22,7 @@ if (process.env.NODE_ENV !== "production") {
 
 
 module.exports = {
-  port: process.env.PORT,
+  port: process.env.PORT || 3000,
   mongodb: process.env.MONGO_CONNECTION_STRING,
   jwtSecret: process.env.JWT_SECRET,
   env: process.env.NODE_ENV,
