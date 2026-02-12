@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const upload = require("../middlewares/upload");
 const { Message } = require("../models");
-const { io } = require("../config/socket");
+const { getIO } = require("../config/socket");
 
 //  Upload File (Images / Docs / PDF)
 router.post("/upload", upload.single("file"), async (req, res) => {
@@ -19,9 +19,12 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     });
 
 
-  //   broadcast
-  io.to(receiverId).emit("receive_message", msg);
-  io.to(senderId).emit("receive_message", msg);
+  // broadcast
+    const io = getIO();
+    if (io) {
+      io.to(receiverId).emit("receive_message", message);
+      io.to(senderId).emit("receive_message", message);
+    }
 
     return res.json(message);
   } catch (err) {
