@@ -5,7 +5,7 @@ const dotenvExample = require("dotenv").config({path: path.resolve(process.cwd()
 
 if (process.env.NODE_ENV !== "DEV") {
   const requiredVars = [
-    "PORT",
+    
     "MONGO_CONNECTION_STRING",
     "JWT_SECRET",
     "EMAIL_FROM",
